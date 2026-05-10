@@ -1,0 +1,40 @@
+name: macro-probe
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Swift (SwiftFormat-pinned snapshot)
+        uses: compnerd/gha-setup-swift@main
+        with:
+          swift-version: development
+          swift-build: DEVELOPMENT-SNAPSHOT-2025-08-27-a
+          update-sdk-modules: true
+
+      - name: swift --version
+        shell: pwsh
+        run: swift --version
+
+      - name: Build with -static-stdlib + WindowsExperimental.sdk
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $ExperimentalSDK = "$(Split-Path -Path ${env:SDKROOT} -Parent)/WindowsExperimental.sdk"
+          swift build `
+            --triple x86_64-unknown-windows-msvc `
+            -c release `
+            -debug-info-format none `
+            --product macroprobe `
+            -Xswiftc -sdk -Xswiftc $ExperimentalSDK `
+            -Xswiftc -static-stdlib
+
+      - name: Run produced binary
+        shell: pwsh
+        run: |
+          .\.build\x86_64-unknown-windows-msvc\release\macroprobe.exe
