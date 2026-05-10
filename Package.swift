@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
   name: "macroprobe",
+  dependencies: [
+    .package(url: "https://github.com/apple/swift-syntax", from: "600.0.0"),
+  ],
   targets: [
     .executableTarget(
       name: "macroprobe",
@@ -19,8 +22,5 @@ let package = Package(
         .product(name: "SwiftSyntax", package: "swift-syntax"),
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
       ]),
-  ],
-  dependencies: [
-    .package(url: "https://github.com/apple/swift-syntax", from: "600.0.0"),
   ]
 )
